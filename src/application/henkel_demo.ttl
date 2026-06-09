@@ -43,6 +43,10 @@
     rdfs:label "Test Outcome" ;
     rdfs:comment "The result or observation of a test." .
 
+:Equipment rdf:type owl:Class ;
+    rdfs:label "Equipment" ;
+    rdfs:comment "A piece of machinery or lab equipment used in an experiment." .
+
 ### Object Properties ###
 
 :hasExperiment rdf:type owl:ObjectProperty ;
