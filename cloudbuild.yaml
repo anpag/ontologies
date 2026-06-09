@@ -1,0 +1,26 @@
+steps:
+  # 1. Build the container image from the scripts directory
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'europe-west1-docker.pkg.dev/$PROJECT_ID/henkel-repo/ontology-ingestion:latest', './scripts']
+  
+  # 2. Push the container image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'europe-west1-docker.pkg.dev/$PROJECT_ID/henkel-repo/ontology-ingestion:latest']
+    
+  # 3. Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'ontology-ingestion-service'
+      - '--image'
+      - 'europe-west1-docker.pkg.dev/$PROJECT_ID/henkel-repo/ontology-ingestion:latest'
+      - '--region'
+      - 'europe-west1'
+      - '--no-allow-unauthenticated' # Secure by default; Eventarc will use a Service Account to trigger it
+      - '--set-env-vars'
+      - 'PROJECT_ID=$PROJECT_ID,DATASET_ID=kg_ontology_staging,ONTOLOGY_URL=https://raw.githubusercontent.com/anpag/ontologies/main/src/application/henkel_demo.ttl'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
