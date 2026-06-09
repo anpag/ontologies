@@ -5,7 +5,7 @@ import argparse
 import csv
 from google.cloud import bigquery
 
-def ingest_ontology(owl_file_path, project_id, dataset_id):
+def ingest_ontology(owl_file_path, project_id, dataset_id, version_info="Unknown Version"):
     """
     Parses an OWL ontology, applies deductive reasoning via Owlready2 (HermiT), 
     and uploads the rich dictionary and topology rules to BigQuery.
@@ -143,13 +143,22 @@ def ingest_ontology(owl_file_path, project_id, dataset_id):
     # 4. Upload to BigQuery
     client = bigquery.Client(project=project_id)
     
+    # Update Dataset Description with version info
+    dataset_ref = client.dataset(dataset_id)
+    dataset = client.get_dataset(dataset_ref)
+    dataset.description = f"Ontology Staging Dataset. Current Version: {version_info}"
+    client.update_dataset(dataset, ["description"])
+    
     # Upload Classes
     print(f"Uploading {len(onto_classes)} classes to BigQuery...")
     class_table_id = f"{project_id}.{dataset_id}.onto_classes"
     client.load_table_from_json(
         onto_classes, 
         class_table_id, 
-        job_config=bigquery.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+        job_config=bigquery.LoadJobConfig(
+            write_disposition="WRITE_TRUNCATE",
+            destination_table_description=f"Ontology Classes. Version: {version_info}"
+        )
     ).result()
 
     # Upload Rules
@@ -158,7 +167,10 @@ def ingest_ontology(owl_file_path, project_id, dataset_id):
     client.load_table_from_json(
         onto_rules, 
         rules_table_id, 
-        job_config=bigquery.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+        job_config=bigquery.LoadJobConfig(
+            write_disposition="WRITE_TRUNCATE",
+            destination_table_description=f"Ontology Rules. Version: {version_info}"
+        )
     ).result()
     
     # Upload Data Properties
@@ -167,7 +179,10 @@ def ingest_ontology(owl_file_path, project_id, dataset_id):
     client.load_table_from_json(
         onto_data_properties, 
         data_props_table_id, 
-        job_config=bigquery.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+        job_config=bigquery.LoadJobConfig(
+            write_disposition="WRITE_TRUNCATE",
+            destination_table_description=f"Ontology Data Properties. Version: {version_info}"
+        )
     ).result()
     
     print("Ingestion complete.")

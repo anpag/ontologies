@@ -23,6 +23,24 @@ def handle_event():
         if not project_id:
             return jsonify({"error": "PROJECT_ID environment variable not set"}), 500
 
+        import base64
+        import json
+
+        # Extract payload from Eventarc/PubSub envelope
+        envelope = request.get_json()
+        version_info = "Unknown Version"
+        
+        if envelope and isinstance(envelope, dict) and "message" in envelope:
+            pubsub_message = envelope["message"]
+            if isinstance(pubsub_message, dict) and "data" in pubsub_message:
+                try:
+                    data_str = base64.b64decode(pubsub_message["data"]).decode("utf-8").strip()
+                    data_json = json.loads(data_str)
+                    version_info = data_json.get("commit_sha", "Unknown Version")
+                    print(f"Extracted version info: {version_info}")
+                except Exception as e:
+                    print(f"Could not parse payload as JSON: {e}")
+
         print(f"Trigger received. Fetching ontology from {ontology_url}")
         
         # Download the file to a temporary location
@@ -36,7 +54,7 @@ def handle_event():
         print("Executing ontology ingestion and reasoning...")
         
         # Trigger the existing main.py logic
-        ingest_ontology(temp_file_path, project_id, dataset_id)
+        ingest_ontology(temp_file_path, project_id, dataset_id, version_info)
         
         # Cleanup
         os.remove(temp_file_path)
