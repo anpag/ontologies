@@ -1,0 +1,82 @@
+@prefix : <http://henkel.com/ontology/demo#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://henkel.com/ontology/demo> .
+
+<http://henkel.com/ontology/demo> rdf:type owl:Ontology .
+
+### Classes ###
+
+:Project rdf:type owl:Class ;
+    rdfs:label "Project" ;
+    rdfs:comment "A research or product development project." .
+
+:Experiment rdf:type owl:Class ;
+    rdfs:label "Experiment" ;
+    rdfs:comment "A scientific experiment conducted within a project." .
+
+:Formulation rdf:type owl:Class ;
+    rdfs:label "Formulation" ;
+    rdfs:comment "A specific chemical formulation or recipe." .
+
+:Ingredient rdf:type owl:Class ;
+    rdfs:label "Ingredient" ;
+    rdfs:comment "A component chemical or substance used in a formulation." .
+
+:Test rdf:type owl:Class ;
+    rdfs:label "Test" ;
+    rdfs:comment "An analytical or physical test performed on a formulation." .
+
+:PhysicalTest rdf:type owl:Class ;
+    rdfs:subClassOf :Test ;
+    rdfs:label "Physical Test" .
+
+:ChemicalTest rdf:type owl:Class ;
+    rdfs:subClassOf :Test ;
+    rdfs:label "Chemical Test" .
+
+:TestOutcome rdf:type owl:Class ;
+    rdfs:label "Test Outcome" ;
+    rdfs:comment "The result or observation of a test." .
+
+### Object Properties ###
+
+:hasExperiment rdf:type owl:ObjectProperty ;
+    rdfs:domain :Project ;
+    rdfs:range :Experiment ;
+    rdfs:label "has experiment" .
+
+:hasFormulation rdf:type owl:ObjectProperty ;
+    rdfs:domain :Experiment ;
+    rdfs:range :Formulation ;
+    rdfs:label "has formulation" .
+
+:hasIngredient rdf:type owl:ObjectProperty ;
+    rdfs:domain :Formulation ;
+    rdfs:range :Ingredient ;
+    rdfs:label "has ingredient" .
+
+:hasTest rdf:type owl:ObjectProperty ;
+    rdfs:domain :Experiment ;
+    rdfs:range :Test ;
+    rdfs:label "has test" .
+
+:hasOutcome rdf:type owl:ObjectProperty ;
+    rdfs:domain :Test ;
+    rdfs:range :TestOutcome ;
+    rdfs:label "has outcome" .
+
+### Datatype Properties ###
+
+:hasPercentage rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Ingredient ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has percentage" .
+
+:hasTestValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :TestOutcome ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has test value" .

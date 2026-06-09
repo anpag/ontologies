@@ -1,0 +1,8 @@
+# test_hierarchy.rq
+# Checks for cyclic dependencies in rdfs:subClassOf
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?class
+WHERE {
+  ?class rdfs:subClassOf+ ?class .
+}
