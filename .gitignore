@@ -1,0 +1,24 @@
+# Environments
+venv/
+.env
+.venv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data & Logs
+*.log
+*.sqlite
+data/
+*.csv
+*.json
+*.jsonl
