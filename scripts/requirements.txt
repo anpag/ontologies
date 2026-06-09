@@ -1,0 +1,7 @@
+rdflib==7.0.0
+google-cloud-bigquery==3.12.0
+google-cloud-aiplatform==1.36.0
+owlready2==0.45
+Flask==3.0.3
+requests==2.31.0
+gunicorn==22.0.0
