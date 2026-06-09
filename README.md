@@ -40,3 +40,7 @@ The ontologies and supporting services are organized as follows:
    git push origin v1.0.2
    ```
 4. This will trigger the pipeline. The updated ontology will be reasoned and materialized in BigQuery within a few minutes, carrying the new version tag in the table descriptions.
+
+## Further Documentation
+
+* **[Semantic "Clean Room" Architecture](docs/SEMANTIC_CLEAN_ROOM_ARCHITECTURE.md)**: Explains the decoupling of raw extraction from canonicalization using SKOS and QUDT, and the human-in-the-loop DLQ feedback process.
