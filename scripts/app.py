@@ -18,7 +18,35 @@ def handle_event():
         # Extract configuration from environment variables
         project_id = os.environ.get('PROJECT_ID')
         dataset_id = os.environ.get('DATASET_ID', 'kg_ontology_staging')
-        ontology_url = os.environ.get('ONTOLOGY_URL', 'https://raw.githubusercontent.com/anpag/ontologies/main/src/application/henkel_demo.ttl')
+        # Default to main branch, but override if we get a specific ref/tag from the webhook
+        branch_or_tag = "main"
+        
+        # Extract payload from Eventarc/PubSub envelope
+        envelope = request.get_json()
+        version_info = "Unknown Version"
+        
+        if envelope and isinstance(envelope, dict) and "message" in envelope:
+            pubsub_message = envelope["message"]
+            if isinstance(pubsub_message, dict) and "data" in pubsub_message:
+                try:
+                    data_str = base64.b64decode(pubsub_message["data"]).decode("utf-8").strip()
+                    data_json = json.loads(data_str)
+                    
+                    # If this was triggered by a tag push, the ref will look like refs/tags/v1.0.0
+                    # If it was a branch, it looks like refs/heads/main
+                    ref = data_json.get("ref", "")
+                    if ref.startswith("refs/tags/"):
+                        branch_or_tag = ref.replace("refs/tags/", "")
+                        version_info = branch_or_tag # Use the tag name (e.g., v1.0.0) as the version!
+                    else:
+                        version_info = data_json.get("commit_sha", "Unknown Version")
+                        
+                    print(f"Extracted version info: {version_info}, branch/tag: {branch_or_tag}")
+                except Exception as e:
+                    print(f"Could not parse payload as JSON: {e}")
+
+        # Construct the raw GitHub URL dynamically pointing to the exact tag or branch
+        ontology_url = f"https://raw.githubusercontent.com/anpag/ontologies/{branch_or_tag}/src/application/henkel_demo.ttl"
         
         if not project_id:
             return jsonify({"error": "PROJECT_ID environment variable not set"}), 500

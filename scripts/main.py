@@ -156,10 +156,14 @@ def ingest_ontology(owl_file_path, project_id, dataset_id, version_info="Unknown
         onto_classes, 
         class_table_id, 
         job_config=bigquery.LoadJobConfig(
-            write_disposition="WRITE_TRUNCATE",
-            destination_table_description=f"Ontology Classes. Version: {version_info}"
+            write_disposition="WRITE_TRUNCATE"
         )
     ).result()
+    
+    # Update Class Table Description
+    table_ref = client.get_table(class_table_id)
+    table_ref.description = f"Ontology Classes. Version: {version_info}"
+    client.update_table(table_ref, ["description"])
 
     # Upload Rules
     print(f"Uploading {len(onto_rules)} topology rules to BigQuery...")
@@ -168,10 +172,14 @@ def ingest_ontology(owl_file_path, project_id, dataset_id, version_info="Unknown
         onto_rules, 
         rules_table_id, 
         job_config=bigquery.LoadJobConfig(
-            write_disposition="WRITE_TRUNCATE",
-            destination_table_description=f"Ontology Rules. Version: {version_info}"
+            write_disposition="WRITE_TRUNCATE"
         )
     ).result()
+    
+    # Update Rules Table Description
+    table_ref = client.get_table(rules_table_id)
+    table_ref.description = f"Ontology Rules. Version: {version_info}"
+    client.update_table(table_ref, ["description"])
     
     # Upload Data Properties
     print(f"Uploading {len(onto_data_properties)} data properties to BigQuery...")
@@ -180,10 +188,14 @@ def ingest_ontology(owl_file_path, project_id, dataset_id, version_info="Unknown
         onto_data_properties, 
         data_props_table_id, 
         job_config=bigquery.LoadJobConfig(
-            write_disposition="WRITE_TRUNCATE",
-            destination_table_description=f"Ontology Data Properties. Version: {version_info}"
+            write_disposition="WRITE_TRUNCATE"
         )
     ).result()
+    
+    # Update Data Properties Table Description
+    table_ref = client.get_table(data_props_table_id)
+    table_ref.description = f"Ontology Data Properties. Version: {version_info}"
+    client.update_table(table_ref, ["description"])
     
     print("Ingestion complete.")
 

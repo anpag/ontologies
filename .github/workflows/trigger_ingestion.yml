@@ -1,11 +1,8 @@
 name: Trigger Ontology Ingestion
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'src/**/*.ttl'
-      - 'src/**/*.owl'
+    tags:
+      - 'v*.*.*'
 
 jobs:
   trigger-pipeline:
