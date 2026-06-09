@@ -17,6 +17,7 @@ To ensure the ontology is governed, version-controlled, and seamlessly synced wi
    - It invokes the `owlready2` HermiT deductive reasoning engine to compute the logical closure (inferring all inherited relationships).
    - It extracts the expanded ontology into three structured components: **Classes**, **Topology Rules** (Object Properties), and **Data Properties**.
 6. **Data Staging (BigQuery):** Finally, the service loads the data natively into the BigQuery staging dataset (`kg_ontology_staging`). Crucially, it uses the BigQuery API to automatically update the table descriptions with the semantic tag/commit hash, providing end-to-end data lineage directly in the database.
+7. **Human-In-The-Loop Validation & Promotion (Dataform):** A Data Engineer or Data Steward manually reviews the staged data and triggers the Dataform pipeline. Dataform runs a suite of SQL assertions (e.g., verifying referential integrity of all relationships). If the assertions pass, Dataform safely promotes the validated rules into the `kg_ontology_production` dataset and constructs the final BigQuery Property Graph. This explicit manual trigger ensures a human always signs off on production-breaking semantic changes.
 
 ## Repository Structure
 
