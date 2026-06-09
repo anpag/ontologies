@@ -10,10 +10,23 @@ def ingest_ontology(owl_file_path, project_id, dataset_id):
     Parses an OWL ontology, applies deductive reasoning via Owlready2 (HermiT), 
     and uploads the rich dictionary and topology rules to BigQuery.
     """
-    print(f"Loading ontology file: {owl_file_path} with Owlready2...")
+    import tempfile
+    
+    print(f"Pre-parsing ontology file: {owl_file_path} with rdflib to normalize format...")
+    # Load with rdflib to normalize any Turtle syntax into RDF/XML for Owlready2
+    g_init = rdflib.Graph()
+    # Try to guess format or default to turtle
+    fmt = "turtle" if owl_file_path.endswith(".ttl") else "xml"
+    g_init.parse(owl_file_path, format=fmt)
+    
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".xml") as temp_xml_file:
+        g_init.serialize(destination=temp_xml_file.name, format="xml")
+        temp_xml_path = temp_xml_file.name
+        
+    print(f"Loading normalized ontology file into Owlready2...")
     
     # Owlready2 needs an absolute path
-    abs_path = os.path.abspath(owl_file_path)
+    abs_path = os.path.abspath(temp_xml_path)
     onto = owlready2.get_ontology(f"file://{abs_path}").load()
     
     print("Expanding graph with HermiT reasoning (this may take a minute)...")
@@ -22,6 +35,9 @@ def ingest_ontology(owl_file_path, project_id, dataset_id):
         
     temp_owl = "/tmp/reasoned_onto.xml"
     onto.save(file=temp_owl, format="rdfxml")
+    
+    # Clean up the intermediate xml
+    os.remove(temp_xml_path)
     
     print("Parsing reasoned ontology with rdflib...")
     g = rdflib.Graph()
